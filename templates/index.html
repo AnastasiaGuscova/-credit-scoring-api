@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Credit Scoring</title>
+    <title>Credit Scoring — оценка кредитного риска</title>
 
     <style>
         * {
@@ -13,286 +13,768 @@
 
         body {
             margin: 0;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 25px;
+            padding: 30px 16px;
             font-family: Arial, sans-serif;
             background: #f3f5f9;
-            color: #202b40;
+            color: #202b3c;
         }
 
         .container {
-            width: 100%;
-            max-width: 490px;
-            padding: 34px;
-            background: #fff;
-            border: 1px solid #e8ebf1;
-            border-radius: 16px;
-            box-shadow: 0 12px 40px rgba(25, 40, 70, 0.07);
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        .header {
+        header {
             margin-bottom: 28px;
+            text-align: center;
         }
 
-        .header h1 {
-            margin: 0 0 9px;
-            font-size: 23px;
-            font-weight: 700;
-            letter-spacing: -0.5px;
+        h1 {
+            margin-bottom: 10px;
+            font-size: 30px;
         }
 
-        .header p {
-            margin: 0;
-            color: #8993a5;
+        .subtitle {
+            color: #667085;
+            line-height: 1.5;
+        }
+
+        .card {
+            padding: 28px;
+            margin-bottom: 24px;
+            background: #ffffff;
+            border-radius: 14px;
+            box-shadow: 0 4px 18px rgba(20, 35, 60, 0.06);
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 21px;
+        }
+
+        h3 {
+            margin-top: 26px;
+            margin-bottom: 16px;
+            font-size: 17px;
+        }
+
+        .section-description {
+            margin-top: -10px;
+            margin-bottom: 20px;
+            color: #667085;
             font-size: 13px;
             line-height: 1.5;
         }
 
-        .form-group {
-            margin-bottom: 19px;
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 18px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
         }
 
         label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #46536a;
-        }
-
-        input, select {
-            width: 100%;
-            height: 46px;
-            padding: 0 13px;
-            border: 1px solid #e1e6ef;
-            border-radius: 8px;
-            outline: none;
-            background: #fafbfc;
-            color: #26334a;
             font-size: 14px;
-            transition: 0.2s;
+            font-weight: 600;
         }
 
-        input:focus, select:focus {
-            border-color: #4263eb;
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(66, 99, 235, 0.08);
+        input,
+        select {
+            width: 100%;
+            min-height: 43px;
+            padding: 10px 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 7px;
+            background: #ffffff;
+            color: #202b3c;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3768d5;
+            box-shadow: 0 0 0 3px rgba(55, 104, 213, 0.12);
+        }
+
+        .hint {
+            color: #7b8494;
+            font-size: 12px;
+            line-height: 1.4;
         }
 
         button {
             width: 100%;
-            height: 48px;
-            margin-top: 7px;
+            margin-top: 26px;
+            padding: 14px 20px;
             border: none;
             border-radius: 8px;
-            background: #3157d5;
+            background: #315fc5;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
-            transition: 0.2s;
         }
 
         button:hover {
-            background: #2447bd;
+            background: #254da6;
         }
 
         button:disabled {
-            opacity: 0.65;
+            background: #8b9bc0;
             cursor: wait;
         }
 
-        .result {
+        .hidden {
             display: none;
-            margin-top: 22px;
-            padding: 17px;
-            border-radius: 9px;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .decision {
+            display: inline-block;
+            padding: 9px 14px;
+            border-radius: 7px;
+            font-weight: 700;
+        }
+
+        .decision.approve {
+            background: #e6f5eb;
+            color: #18743b;
+        }
+
+        .decision.decline {
+            background: #fdeaea;
+            color: #b42318;
+        }
+
+        .probability {
+            margin: 22px 0;
+            font-size: 34px;
+            font-weight: 700;
+        }
+
+        .probability-label {
+            color: #667085;
+            font-size: 14px;
+        }
+
+        .progress-track {
+            height: 12px;
+            overflow: hidden;
+            border-radius: 20px;
+            background: #e9edf4;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            border-radius: 20px;
+            background: #315fc5;
+            transition: width 0.3s ease;
+        }
+
+        .threshold-info {
+            margin-top: 12px;
+            color: #667085;
             font-size: 13px;
-            line-height: 1.7;
+            line-height: 1.5;
         }
 
-        .result.approve {
-            background: #edf8f2;
-            border: 1px solid #c9ead7;
-            color: #18784b;
+        .factor-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 0;
+            list-style: none;
         }
 
-        .result.decline {
-            background: #fff1f1;
-            border: 1px solid #f1d1d1;
-            color: #b83b42;
+        .factor-item {
+            padding: 14px;
+            border: 1px solid #e4e7ec;
+            border-radius: 8px;
         }
 
-        .result.error {
-            background: #fff1f1;
-            border: 1px solid #f1d1d1;
-            color: #b83b42;
+        .factor-name {
+            margin-bottom: 6px;
+            font-weight: 700;
         }
 
-        .result h3 {
-            margin: 0 0 8px;
-            font-size: 16px;
+        .factor-details {
+            color: #667085;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        .result ul {
-            padding-left: 20px;
-            margin-bottom: 0;
+        .factor-risk {
+            color: #b42318;
+            font-weight: 600;
         }
 
-        @media (max-width: 520px) {
-            .container {
-                padding: 25px 20px;
+        .factor-safe {
+            color: #18743b;
+            font-weight: 600;
+        }
+
+        .error {
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fdeaea;
+            color: #b42318;
+            line-height: 1.5;
+        }
+
+        .notice {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 8px;
+            background: #f1f5fb;
+            color: #526078;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 650px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 
 <body>
-
 <div class="container">
 
-    <div class="header">
-        <h1>Кредитный скоринг</h1>
-        <p>Заполните параметры заявки для оценки кредитного риска</p>
-    </div>
+    <header>
+        <h1>Credit Scoring</h1>
+        <p class="subtitle">
+            Демонстрационная система оценки кредитного риска
+            на основе машинного обучения
+        </p>
+    </header>
 
-    <form id="creditForm">
+    <section class="card">
+        <h2>Данные заёмщика</h2>
 
-        <div class="form-group">
-            <label>Сумма кредита, ₽</label>
-            <input type="number" name="credit_amount" value="5000" min="1" required>
+        <p class="section-description">
+            Заполните все поля. Данные используются моделью
+            для оценки вероятности дефолта.
+        </p>
+
+        <div id="errorMessage" class="error hidden"></div>
+
+        <form id="creditForm">
+
+            <h3>1. Кредитные параметры</h3>
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="duration">Срок кредита (месяцы)</label>
+                    <input
+                        type="number"
+                        id="duration"
+                        min="1"
+                        max="1000"
+                        step="1"
+                        value="24"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="credit_amount">Сумма кредита</label>
+                    <input
+                        type="number"
+                        id="credit_amount"
+                        min="1"
+                        step="1"
+                        value="5000"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="installment_commitment">
+                        Доля дохода на выплаты (1–4)
+                    </label>
+                    <select id="installment_commitment" required>
+                        <option value="1">1 — до 20%</option>
+                        <option value="2" selected>2 — 20–25%</option>
+                        <option value="3">3 — 25–35%</option>
+                        <option value="4">4 — более 35%</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="checking_status">
+                        Состояние расчётного счёта
+                    </label>
+                    <select id="checking_status" required>
+                        <option value="no checking">Нет счёта</option>
+                        <option value="<0">Баланс меньше 0</option>
+                        <option value="0<=X<200">От 0 до 200</option>
+                        <option value=">=200">200 и более</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="credit_history">Кредитная история</label>
+                    <select id="credit_history" required>
+                        <option value="no credits/all paid">
+                            Нет кредитов / все погашены
+                        </option>
+                        <option value="all paid">Все кредиты погашены</option>
+                        <option value="existing paid">
+                            Текущие кредиты погашаются
+                        </option>
+                        <option value="delayed previously">
+                            Ранее были задержки
+                        </option>
+                        <option value="critical/other existing credit">
+                            Критическая история / другие кредиты
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="purpose">Цель кредита</label>
+                    <select id="purpose" required>
+                        <option value="new car">Покупка нового автомобиля</option>
+                        <option value="used car">Покупка подержанного автомобиля</option>
+                        <option value="furniture/equipment">Мебель / оборудование</option>
+                        <option value="radio/TV">Радио / телевизор</option>
+                        <option value="domestic appliance">Бытовая техника</option>
+                        <option value="repairs">Ремонт</option>
+                        <option value="education">Образование</option>
+                        <option value="retraining">Переквалификация</option>
+                        <option value="business">Бизнес</option>
+                        <option value="other">Другое</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <h3>2. Финансовое положение</h3>
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="savings_status">Накопления</label>
+                    <select id="savings_status" required>
+                        <option value="<100">Менее 100</option>
+                        <option value="100<=X<500">От 100 до 500</option>
+                        <option value="500<=X<1000">От 500 до 1000</option>
+                        <option value=">=1000">1000 и более</option>
+                        <option value="no known savings">Нет известных накоплений</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="employment">Стаж работы</label>
+                    <select id="employment" required>
+                        <option value="unemployed">Не работает</option>
+                        <option value="<1">Менее 1 года</option>
+                        <option value="1<=X<4">От 1 до 4 лет</option>
+                        <option value="4<=X<7">От 4 до 7 лет</option>
+                        <option value=">=7">7 лет и более</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="existing_credits">
+                        Количество существующих кредитов
+                    </label>
+                    <input
+                        type="number"
+                        id="existing_credits"
+                        min="1"
+                        max="10"
+                        step="1"
+                        value="1"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="num_dependents">Количество иждивенцев</label>
+                    <input
+                        type="number"
+                        id="num_dependents"
+                        min="1"
+                        max="10"
+                        step="1"
+                        value="1"
+                        required
+                    >
+                </div>
+
+            </div>
+
+            <h3>3. Личные данные</h3>
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="age">Возраст</label>
+                    <input
+                        type="number"
+                        id="age"
+                        min="18"
+                        max="100"
+                        step="1"
+                        value="30"
+                        required
+                    >
+                </div>
+
+                <div class="field">
+                    <label for="personal_status">Семейное положение</label>
+                    <select id="personal_status" required>
+                        <option value="male single">Мужчина, не женат</option>
+                        <option value="female div/dep/mar">
+                            Женщина, разведена / состоит на иждивении / замужем
+                        </option>
+                        <option value="male div/sep">
+                            Мужчина, разведён / живёт отдельно
+                        </option>
+                        <option value="male mar/wid">
+                            Мужчина, женат / вдовец
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="residence_since">
+                        Срок проживания по текущему адресу (1–4)
+                    </label>
+                    <select id="residence_since" required>
+                        <option value="1">1 — менее года</option>
+                        <option value="2">2 — 1–2 года</option>
+                        <option value="3">3 — 2–3 года</option>
+                        <option value="4">4 — 4 года и более</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="housing">Жилищные условия</label>
+                    <select id="housing" required>
+                        <option value="own">Собственное жильё</option>
+                        <option value="rent">Аренда</option>
+                        <option value="for free">Бесплатное проживание</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <h3>4. Дополнительная информация</h3>
+
+            <div class="form-grid">
+
+                <div class="field">
+                    <label for="other_parties">Другие участники кредита</label>
+                    <select id="other_parties" required>
+                        <option value="none">Нет</option>
+                        <option value="co applicant">Созаявитель</option>
+                        <option value="guarantor">Поручитель</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="property_magnitude">Имущество</label>
+                    <select id="property_magnitude" required>
+                        <option value="real estate">Недвижимость</option>
+                        <option value="life insurance">Страхование жизни</option>
+                        <option value="car">Автомобиль</option>
+                        <option value="no known property">Нет известного имущества</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="other_payment_plans">
+                        Другие планы платежей
+                    </label>
+                    <select id="other_payment_plans" required>
+                        <option value="none">Нет</option>
+                        <option value="bank">Банк</option>
+                        <option value="stores">Магазины</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="job">Профессия</label>
+                    <select id="job" required>
+                        <option value="unemp/unskilled non res">
+                            Безработный / неквалифицированный нерезидент
+                        </option>
+                        <option value="unskilled resident">
+                            Неквалифицированный работник
+                        </option>
+                        <option value="skilled">Квалифицированный работник</option>
+                        <option value="high qualif/self emp/mgmt">
+                            Высококвалифицированный / самозанятый / руководитель
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="own_telephone">Наличие телефона</label>
+                    <select id="own_telephone" required>
+                        <option value="yes">Есть</option>
+                        <option value="none">Нет</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="foreign_worker">Иностранный работник</label>
+                    <select id="foreign_worker" required>
+                        <option value="yes">Да</option>
+                        <option value="no">Нет</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit" id="submitButton">
+                Оценить кредитный риск
+            </button>
+
+        </form>
+
+        <div class="notice">
+            Это исследовательский прототип, обученный на German Credit Dataset.
+            Результат является демонстрационным прогнозом модели и не представляет
+            собой реальное решение банка о выдаче кредита.
+        </div>
+    </section>
+
+    <section id="resultCard" class="card hidden">
+
+        <div class="result-header">
+            <h2>Результат скоринга</h2>
+            <span id="decision" class="decision"></span>
         </div>
 
-        <div class="form-group">
-            <label>Срок кредита, месяцев</label>
-            <input type="number" name="duration" value="24" min="1" required>
+        <p class="probability-label">
+            Предсказанная вероятность дефолта
+        </p>
+
+        <div class="probability" id="probability">—</div>
+
+        <div class="progress-track">
+            <div class="progress-bar" id="progressBar"></div>
         </div>
 
-        <div class="form-group">
-            <label>Возраст заёмщика</label>
-            <input type="number" name="age" value="30" min="18" max="120" required>
-        </div>
+        <p class="threshold-info" id="thresholdInfo"></p>
 
-        <div class="form-group">
-            <label>Цель кредита</label>
-            <select name="purpose">
-                <option value="radio/tv">Бытовая техника</option>
-                <option value="car">Автомобиль</option>
-                <option value="furniture/equipment">Мебель</option>
-                <option value="business">Бизнес</option>
-            </select>
-        </div>
+        <h3>Факторы, повлиявшие на прогноз</h3>
 
-        <div class="form-group">
-            <label>Стаж работы</label>
-            <select name="employment">
-                <option value="1<=X<4">От 1 до 4 лет</option>
-                <option value=">=7">Более 7 лет</option>
-                <option value="<1">Менее 1 года</option>
-            </select>
-        </div>
+        <ul id="factorList" class="factor-list"></ul>
 
-        <button type="submit" id="submitBtn">
-            Рассчитать скоринг
-        </button>
-
-    </form>
-
-    <div id="resultBox" class="result">
-        <h3 id="decisionText"></h3>
-        <div id="llmExplanation"></div>
-    </div>
+    </section>
 
 </div>
 
 <script>
-    document.getElementById('creditForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+    const form = document.getElementById("creditForm");
+    const resultCard = document.getElementById("resultCard");
+    const errorMessage = document.getElementById("errorMessage");
+    const submitButton = document.getElementById("submitButton");
 
-        const button = document.getElementById('submitBtn');
-        const box = document.getElementById('resultBox');
+    // Все 20 исходных признаков датасета
+    const numericFields = [
+        "duration",
+        "credit_amount",
+        "installment_commitment",
+        "residence_since",
+        "age",
+        "existing_credits",
+        "num_dependents"
+    ];
 
-        button.disabled = true;
-        button.textContent = 'Выполняется оценка...';
-        box.style.display = 'none';
+    const categoricalFields = [
+        "checking_status",
+        "credit_history",
+        "purpose",
+        "savings_status",
+        "employment",
+        "personal_status",
+        "other_parties",
+        "property_magnitude",
+        "other_payment_plans",
+        "housing",
+        "job",
+        "own_telephone",
+        "foreign_worker"
+    ];
 
-        try {
-            const formData = new FormData(e.target);
-            const data = Object.fromEntries(formData.entries());
+    function getFormData() {
+        const features = {};
 
-            data.credit_amount = parseFloat(data.credit_amount);
-            data.duration = parseInt(data.duration);
-            data.age = parseInt(data.age);
+        numericFields.forEach(field => {
+            const input = document.getElementById(field);
+            features[field] = Number(input.value);
+        });
 
-            const fullData = {
-                ...data,
-                checking_status: "<0",
-                credit_history: "critical/other existing credit",
-                savings_status: "<100",
-                installment_commitment: 4,
-                personal_status: "male single",
-                other_parties: "none",
-                residence_since: 2,
-                property_magnitude: "real estate",
-                other_payment_plans: "none",
-                housing: "own",
-                existing_credits: 1,
-                job: "skilled",
-                num_dependents: 1,
-                own_telephone: "yes",
-                foreign_worker: "yes"
-            };
+        categoricalFields.forEach(field => {
+            const input = document.getElementById(field);
+            features[field] = input.value;
+        });
 
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ features: fullData })
-            });
+        return features;
+    }
 
-            const result = await response.json();
+    function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.classList.remove("hidden");
+    }
 
-            if (!response.ok || result.status === 'error') {
-                throw new Error(result.message || 'Ошибка обработки заявки');
+    function renderFactors(factors) {
+        const factorList = document.getElementById("factorList");
+        factorList.replaceChildren();
+
+        if (!Array.isArray(factors) || factors.length === 0) {
+            const item = document.createElement("li");
+            item.textContent = "Факторы не найдены.";
+            factorList.appendChild(item);
+            return;
+        }
+
+        factors.forEach(factor => {
+            const item = document.createElement("li");
+            item.className = "factor-item";
+
+            const name = document.createElement("div");
+            name.className = "factor-name";
+            name.textContent = factor.feature ?? "Признак";
+
+            const details = document.createElement("div");
+            details.className = "factor-details";
+
+            const value = factor.value ?? "Не указано";
+            const impact = Number(factor.impact);
+            const direction = factor.direction ?? "Не определено";
+
+            const impactText = Number.isFinite(impact)
+                ? impact.toFixed(4)
+                : "Не рассчитан";
+
+            const directionElement = document.createElement("span");
+
+            if (direction === "Повышает риск") {
+                directionElement.className = "factor-risk";
+            } else if (direction === "Снижает риск") {
+                directionElement.className = "factor-safe";
             }
 
-            const approved = result.decision === 'approve';
+            directionElement.textContent = direction;
 
-            box.className = 'result ' + (approved ? 'approve' : 'decline');
-            box.style.display = 'block';
+            details.textContent =
+                `Значение: ${value} | SHAP: ${impactText} | `;
 
-            document.getElementById('decisionText').textContent =
-                approved ? 'Кредит одобрен' : 'Кредит отклонён';
+            details.appendChild(directionElement);
+            item.appendChild(name);
+            item.appendChild(details);
+            factorList.appendChild(item);
+        });
+    }
 
-            let html = `<b>Вероятность дефолта:</b> ${(result.probability * 100).toFixed(1)}%`;
+    function renderResult(data) {
+        const decision = document.getElementById("decision");
+        const probability = document.getElementById("probability");
+        const progressBar = document.getElementById("progressBar");
+        const thresholdInfo = document.getElementById("thresholdInfo");
 
-            html += '<br><br><b>Основные факторы:</b><ul>';
+        const probabilityPercent = data.probability_percent;
 
-            (result.top_factors || []).forEach(f => {
-                const direction = f.direction === 'increases_risk'
-                    ? 'Повышает риск'
-                    : 'Снижает риск';
+        decision.textContent = data.decision === "approve"
+            ? "Ниже порога риска"
+            : "Порог риска достигнут";
 
-                const item = document.createElement('li');
-                item.textContent = `${f.feature} — ${direction} (сила: ${Math.abs(f.impact)})`;
-                document.getElementById('llmExplanation').appendChild(item);
+        decision.className = "decision " +
+            (data.decision === "approve" ? "approve" : "decline");
+
+        probability.textContent = `${probabilityPercent.toFixed(2)}%`;
+
+        progressBar.style.width =
+            `${Math.min(100, Math.max(0, probabilityPercent))}%`;
+
+        thresholdInfo.textContent =
+            `Порог классификации: ${(data.threshold * 100).toFixed(0)}%. ` +
+            `Если вероятность дефолта ниже порога, модель относит заявку ` +
+            `к классу 0. В противном случае — к классу 1.`;
+
+        renderFactors(data.top_factors);
+
+        resultCard.classList.remove("hidden");
+        resultCard.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+    }
+
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+
+        errorMessage.classList.add("hidden");
+        resultCard.classList.add("hidden");
+
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        const features = getFormData();
+
+        submitButton.disabled = true;
+        submitButton.textContent = "Выполняется оценка...";
+
+        try {
+            const response = await fetch("/predict", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    features: features
+                })
             });
 
-            document.getElementById('llmExplanation').innerHTML = html + '</ul>';
+            const data = await response.json();
+
+            if (!response.ok || data.status !== "success") {
+                throw new Error(
+                    data.message || "Не удалось выполнить оценку."
+                );
+            }
+
+            renderResult(data);
 
         } catch (error) {
-            box.className = 'result error';
-            box.style.display = 'block';
-            document.getElementById('decisionText').textContent = 'Ошибка обработки';
-            document.getElementById('llmExplanation').textContent = error.message;
-
+            showError(error.message);
         } finally {
-            button.disabled = false;
-            button.textContent = 'Рассчитать скоринг';
+            submitButton.disabled = false;
+            submitButton.textContent = "Оценить кредитный риск";
         }
     });
 </script>

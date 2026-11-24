@@ -5,3 +5,4 @@ mlruns/
 *.cbm
 data/
 .env
+.idea/workspace.xml
