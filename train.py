@@ -3,7 +3,6 @@ from catboost import CatBoostClassifier
 from sklearn.metrics import roc_auc_score
 from data import load_and_split
 
-
 def train_model():
     print("Загрузка данных...")
     X_train, X_test, y_train, y_test = load_and_split()
@@ -18,9 +17,9 @@ def train_model():
 
         # Инициализируем модель
         model = CatBoostClassifier(
-            iterations=300,  # Количество деревьев
-            learning_rate=0.05,  # Скорость обучения
-            verbose=50,  # Печатать прогресс каждые 50 итераций
+            iterations=300,       # Количество деревьев
+            learning_rate=0.05,   # Скорость обучения
+            verbose=50,           # Печатать прогресс каждые 50 итераций
             cat_features=cat_features,
             random_seed=42
         )
@@ -29,7 +28,7 @@ def train_model():
         model.fit(X_train, y_train)
 
         # Делаем предсказания на тестовой (экзаменационной) выборке
-        y_pred_proba = model.predict_proba(X_test)[:, 1]  # Берем вероятность дефолта (класс 1)
+        y_pred_proba = model.predict_proba(X_test)[:, 1] # Берем вероятность дефолта (класс 1)
 
         # Считаем банковские метрики
         auc = roc_auc_score(y_test, y_pred_proba)
@@ -48,7 +47,6 @@ def train_model():
         # Сохраняем модель локально в файл, чтобы наш API мог её использовать
         model.save_model("model.cbm")
         print("Модель успешно сохранена в model.cbm")
-
 
 if __name__ == "__main__":
     train_model()
