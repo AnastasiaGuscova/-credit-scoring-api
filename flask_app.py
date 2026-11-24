@@ -64,7 +64,7 @@ def load_threshold():
 
     if not METADATA_PATH.exists():
         print(
-            f"Метаданные не найдены. "
+            "Метаданные не найдены. "
             f"Используется порог по умолчанию: {DEFAULT_THRESHOLD}"
         )
         return DEFAULT_THRESHOLD
@@ -73,12 +73,14 @@ def load_threshold():
         with open(METADATA_PATH, "r", encoding="utf-8") as file:
             metadata = json.load(file)
 
-        threshold = metadata.get("threshold", DEFAULT_THRESHOLD)
-
-        threshold = float(threshold)
+        threshold = float(
+            metadata.get("threshold", DEFAULT_THRESHOLD)
+        )
 
         if not 0 < threshold < 1:
-            raise ValueError("Порог должен находиться между 0 и 1.")
+            raise ValueError(
+                "Порог должен находиться между 0 и 1."
+            )
 
         print(f"Порог классификации загружен: {threshold}")
 
@@ -92,9 +94,12 @@ def load_threshold():
         return DEFAULT_THRESHOLD
 
 
-# Загружаем компоненты один раз при запуске приложения
+# Загружаем модель один раз при запуске приложения
 model = load_model()
-explainer = ModelExplainer()
+
+# Передаём уже загруженную модель в SHAP-объяснитель
+explainer = ModelExplainer(model=model)
+
 CLASSIFICATION_THRESHOLD = load_threshold()
 
 
@@ -121,7 +126,7 @@ def prepare_input(features):
 
     if missing_features:
         raise ValueError(
-            f"Не переданы обязательные признаки: "
+            "Не переданы обязательные признаки: "
             f"{', '.join(missing_features)}"
         )
 
@@ -160,6 +165,10 @@ def get_default_probability(input_df):
 
     return float(probabilities[default_index])
 
+
+# ============================================================
+# ПРЕОБРАЗОВАНИЕ ДАННЫХ ДЛЯ JSON
+# ============================================================
 
 def convert_to_json_safe(value):
     """Преобразует numpy-типы в обычные Python-типы для JSON."""
@@ -221,7 +230,7 @@ def predict():
         # 3. Рассчитываем вероятность дефолта
         probability = get_default_probability(input_df)
 
-        # 4. Принимаем решение с использованием подобранного порога
+        # 4. Принимаем решение по подобранному порогу
         decision = (
             "approve"
             if probability < CLASSIFICATION_THRESHOLD
@@ -229,7 +238,11 @@ def predict():
         )
 
         # 5. Получаем SHAP-объяснение
-        top_factors = explainer.get_top_factors(input_df)
+        # В explain.py существует метод explain(), а не get_top_factors()
+        top_factors = explainer.explain(
+            input_df,
+            top_n=5
+        )
 
         # 6. Формируем ответ
         response = {
@@ -249,8 +262,10 @@ def predict():
             "message": str(error)
         }), 400
 
-    except Exception as error:
-        app.logger.exception("Ошибка при обработке заявки")
+    except Exception:
+        app.logger.exception(
+            "Ошибка при обработке заявки"
+        )
 
         return jsonify({
             "status": "error",
