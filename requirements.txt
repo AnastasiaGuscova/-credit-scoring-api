@@ -1,0 +1,10 @@
+catboost
+shap
+fastapi
+uvicorn
+scikit-learn
+mlflow
+pytest
+httpx
+pandas
+numpy
