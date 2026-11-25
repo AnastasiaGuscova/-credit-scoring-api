@@ -84,8 +84,7 @@
             font-weight: 600;
         }
 
-        input,
-        select {
+        input, select {
             width: 100%;
             min-height: 43px;
             padding: 10px 12px;
@@ -96,17 +95,10 @@
             font-size: 14px;
         }
 
-        input:focus,
-        select:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #3768d5;
             box-shadow: 0 0 0 3px rgba(55, 104, 213, 0.12);
-        }
-
-        .hint {
-            color: #7b8494;
-            font-size: 12px;
-            line-height: 1.4;
         }
 
         button {
@@ -135,6 +127,25 @@
             display: none !important;
         }
 
+        .error {
+            padding: 14px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            background: #fdeaea;
+            color: #b42318;
+            line-height: 1.5;
+        }
+
+        .notice {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 8px;
+            background: #f1f5fb;
+            color: #526078;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
         .result-header {
             display: flex;
             align-items: center;
@@ -160,15 +171,15 @@
             color: #b42318;
         }
 
+        .probability-label {
+            color: #667085;
+            font-size: 14px;
+        }
+
         .probability {
             margin: 22px 0;
             font-size: 34px;
             font-weight: 700;
-        }
-
-        .probability-label {
-            color: #667085;
-            font-size: 14px;
         }
 
         .progress-track {
@@ -193,7 +204,7 @@
             line-height: 1.5;
         }
 
-        .factor-list {
+        .factor-list, .scenario-list {
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -201,21 +212,21 @@
             list-style: none;
         }
 
-        .factor-item {
+        .factor-item, .scenario-item {
             padding: 14px;
             border: 1px solid #e4e7ec;
             border-radius: 8px;
         }
 
-        .factor-name {
+        .factor-name, .scenario-title {
             margin-bottom: 6px;
             font-weight: 700;
         }
 
-        .factor-details {
+        .factor-details, .scenario-details {
             color: #667085;
             font-size: 13px;
-            line-height: 1.5;
+            line-height: 1.6;
         }
 
         .factor-risk {
@@ -257,49 +268,20 @@
         }
 
         .counterfactual-box {
-            margin-top: 24px;
+            margin-top: 28px;
             padding: 20px;
             border: 1px solid #d8e2f1;
             border-radius: 8px;
-            background: #f8faff;
+            background: #fbfcff;
         }
 
         .counterfactual-box h3 {
             margin-top: 0;
-            margin-bottom: 12px;
         }
 
         .counterfactual-description {
-            color: #667085;
-            font-size: 13px;
-            line-height: 1.6;
-            margin-bottom: 16px;
-        }
-
-        .scenario-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            padding: 0;
-            list-style: none;
-        }
-
-        .scenario-item {
-            padding: 14px;
-            border: 1px solid #e4e7ec;
-            border-radius: 8px;
-            background: white;
-        }
-
-        .scenario-title {
-            margin-bottom: 8px;
-            font-weight: 700;
-            color: #202b3c;
-        }
-
-        .scenario-details {
             color: #526078;
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.6;
         }
 
@@ -311,28 +293,9 @@
 
         .counterfactual-warning {
             margin-top: 14px;
-            color: #667085;
+            color: #7b8494;
             font-size: 12px;
             line-height: 1.5;
-        }
-
-        .error {
-            padding: 14px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            background: #fdeaea;
-            color: #b42318;
-            line-height: 1.5;
-        }
-
-        .notice {
-            margin-top: 20px;
-            padding: 14px;
-            border-radius: 8px;
-            background: #f1f5fb;
-            color: #526078;
-            font-size: 13px;
-            line-height: 1.6;
         }
 
         @media (max-width: 650px) {
@@ -380,27 +343,16 @@
 
                 <div class="field">
                     <label for="duration">Срок кредита (месяцы)</label>
-                    <input
-                        type="number"
-                        id="duration"
-                        min="1"
-                        max="1000"
-                        step="1"
-                        value="24"
-                        required
-                    >
+                    <input type="number" id="duration"
+                           min="1" max="1000" step="1"
+                           value="24" required>
                 </div>
 
                 <div class="field">
                     <label for="credit_amount">Сумма кредита</label>
-                    <input
-                        type="number"
-                        id="credit_amount"
-                        min="1"
-                        step="1"
-                        value="5000"
-                        required
-                    >
+                    <input type="number" id="credit_amount"
+                           min="1" step="1"
+                           value="5000" required>
                 </div>
 
                 <div class="field">
@@ -421,9 +373,9 @@
                     </label>
                     <select id="checking_status" required>
                         <option value="no checking">Нет счёта</option>
-                        <option value="<0">Баланс меньше 0</option>
-                        <option value="0<=X<200">От 0 до 200</option>
-                        <option value=">=200">200 и более</option>
+                        <option value="&lt;0">Баланс меньше 0</option>
+                        <option value="0&lt;=X&lt;200">От 0 до 200</option>
+                        <option value="&gt;=200">200 и более</option>
                     </select>
                 </div>
 
@@ -471,10 +423,10 @@
                 <div class="field">
                     <label for="savings_status">Накопления</label>
                     <select id="savings_status" required>
-                        <option value="<100">Менее 100</option>
-                        <option value="100<=X<500">От 100 до 500</option>
-                        <option value="500<=X<1000">От 500 до 1000</option>
-                        <option value=">=1000">1000 и более</option>
+                        <option value="&lt;100">Менее 100</option>
+                        <option value="100&lt;=X&lt;500">От 100 до 500</option>
+                        <option value="500&lt;=X&lt;1000">От 500 до 1000</option>
+                        <option value="&gt;=1000">1000 и более</option>
                         <option value="no known savings">Нет известных накоплений</option>
                     </select>
                 </div>
@@ -483,10 +435,10 @@
                     <label for="employment">Стаж работы</label>
                     <select id="employment" required>
                         <option value="unemployed">Не работает</option>
-                        <option value="<1">Менее 1 года</option>
-                        <option value="1<=X<4">От 1 до 4 лет</option>
-                        <option value="4<=X<7">От 4 до 7 лет</option>
-                        <option value=">=7">7 лет и более</option>
+                        <option value="&lt;1">Менее 1 года</option>
+                        <option value="1&lt;=X&lt;4">От 1 до 4 лет</option>
+                        <option value="4&lt;=X&lt;7">От 4 до 7 лет</option>
+                        <option value="&gt;=7">7 лет и более</option>
                     </select>
                 </div>
 
@@ -494,28 +446,16 @@
                     <label for="existing_credits">
                         Количество существующих кредитов
                     </label>
-                    <input
-                        type="number"
-                        id="existing_credits"
-                        min="1"
-                        max="10"
-                        step="1"
-                        value="1"
-                        required
-                    >
+                    <input type="number" id="existing_credits"
+                           min="1" max="10" step="1"
+                           value="1" required>
                 </div>
 
                 <div class="field">
                     <label for="num_dependents">Количество иждивенцев</label>
-                    <input
-                        type="number"
-                        id="num_dependents"
-                        min="1"
-                        max="10"
-                        step="1"
-                        value="1"
-                        required
-                    >
+                    <input type="number" id="num_dependents"
+                           min="1" max="10" step="1"
+                           value="1" required>
                 </div>
 
             </div>
@@ -526,15 +466,9 @@
 
                 <div class="field">
                     <label for="age">Возраст</label>
-                    <input
-                        type="number"
-                        id="age"
-                        min="18"
-                        max="100"
-                        step="1"
-                        value="30"
-                        required
-                    >
+                    <input type="number" id="age"
+                           min="18" max="100" step="1"
+                           value="30" required>
                 </div>
 
                 <div class="field">
@@ -677,7 +611,6 @@
         <p class="threshold-info" id="thresholdInfo"></p>
 
         <h3>Факторы, повлиявшие на прогноз</h3>
-
         <ul id="factorList" class="factor-list"></ul>
 
         <div class="llm-box">
@@ -688,26 +621,21 @@
             </p>
 
             <p id="llmStatus" class="llm-status">
-                Источник заключения будет указан после оценки.
+                Текст формируется языковой моделью Qwen.
             </p>
         </div>
 
         <div id="counterfactualBox" class="counterfactual-box hidden">
             <h3>Как можно изменить заявку</h3>
 
-            <p class="counterfactual-description">
-                Система проверила альтернативные варианты суммы и срока
-                кредита. Ниже показаны варианты, при которых прогнозируемая
-                вероятность дефолта становится ниже порога классификации.
-            </p>
+            <p id="counterfactualDescription"
+               class="counterfactual-description"></p>
 
             <ul id="scenarioList" class="scenario-list"></ul>
 
             <p class="counterfactual-warning">
-                Это результаты симуляции модели, а не гарантия одобрения
-                кредита банком. Изменяйте параметры заявки только в том
-                случае, если они действительно соответствуют вашим
-                финансовым возможностям.
+                Предложенные варианты являются результатами моделирования.
+                Они не гарантируют одобрение кредита реальным банком.
             </p>
         </div>
 
@@ -715,312 +643,7 @@
 
 </div>
 
-<script>
-    const form = document.getElementById("creditForm");
-    const resultCard = document.getElementById("resultCard");
-    const errorMessage = document.getElementById("errorMessage");
-    const submitButton = document.getElementById("submitButton");
-
-    // Все 20 исходных признаков датасета.
-    const numericFields = [
-        "duration",
-        "credit_amount",
-        "installment_commitment",
-        "residence_since",
-        "age",
-        "existing_credits",
-        "num_dependents"
-    ];
-
-    const categoricalFields = [
-        "checking_status",
-        "credit_history",
-        "purpose",
-        "savings_status",
-        "employment",
-        "personal_status",
-        "other_parties",
-        "property_magnitude",
-        "other_payment_plans",
-        "housing",
-        "job",
-        "own_telephone",
-        "foreign_worker"
-    ];
-
-    function getFormData() {
-        const features = {};
-
-        numericFields.forEach(field => {
-            const input = document.getElementById(field);
-            features[field] = Number(input.value);
-        });
-
-        categoricalFields.forEach(field => {
-            const input = document.getElementById(field);
-            features[field] = input.value;
-        });
-
-        return features;
-    }
-
-    function showError(message) {
-        errorMessage.textContent = message;
-        errorMessage.classList.remove("hidden");
-    }
-
-    function renderFactors(factors) {
-        const factorList = document.getElementById("factorList");
-        factorList.replaceChildren();
-
-        if (!Array.isArray(factors) || factors.length === 0) {
-            const item = document.createElement("li");
-            item.textContent = "Факторы не найдены.";
-            factorList.appendChild(item);
-            return;
-        }
-
-        factors.forEach(factor => {
-            const item = document.createElement("li");
-            item.className = "factor-item";
-
-            const name = document.createElement("div");
-            name.className = "factor-name";
-            name.textContent = factor.feature ?? "Признак";
-
-            const details = document.createElement("div");
-            details.className = "factor-details";
-
-            const value = factor.value ?? "Не указано";
-            const impact = Number(factor.impact);
-            const direction = factor.direction ?? "neutral";
-
-            const impactText = Number.isFinite(impact)
-                ? impact.toFixed(4)
-                : "Не рассчитан";
-
-            const directionLabels = {
-                increases_risk: "Повышает риск",
-                decreases_risk: "Снижает риск",
-                neutral: "Нейтральное влияние"
-            };
-
-            const directionElement = document.createElement("span");
-
-            if (direction === "increases_risk") {
-                directionElement.className = "factor-risk";
-            } else if (direction === "decreases_risk") {
-                directionElement.className = "factor-safe";
-            }
-
-            directionElement.textContent =
-                directionLabels[direction] ?? direction;
-
-            details.textContent =
-                `Значение: ${value} | SHAP: ${impactText} | `;
-
-            details.appendChild(directionElement);
-
-            item.appendChild(name);
-            item.appendChild(details);
-
-            factorList.appendChild(item);
-        });
-    }
-
-    function renderCounterfactual(counterfactual) {
-        const box = document.getElementById("counterfactualBox");
-        const list = document.getElementById("scenarioList");
-
-        list.replaceChildren();
-        box.classList.add("hidden");
-
-        if (!counterfactual) {
-            return;
-        }
-
-        box.classList.remove("hidden");
-
-        if (!counterfactual.found) {
-            const item = document.createElement("li");
-            item.className = "scenario-item";
-
-            const message = document.createElement("div");
-            message.className = "scenario-details";
-
-            message.textContent =
-                counterfactual.reason ||
-                "В проверенных сценариях подходящий вариант не найден.";
-
-            item.appendChild(message);
-            list.appendChild(item);
-
-            return;
-        }
-
-        const alternatives = counterfactual.alternatives || [];
-
-        if (alternatives.length === 0) {
-            const item = document.createElement("li");
-            item.className = "scenario-item";
-            item.textContent = "Альтернативные варианты не найдены.";
-
-            list.appendChild(item);
-            return;
-        }
-
-        alternatives.forEach((scenario, index) => {
-            const item = document.createElement("li");
-            item.className = "scenario-item";
-
-            const title = document.createElement("div");
-            title.className = "scenario-title";
-
-            title.textContent = index === 0
-                ? "Вариант с наименьшим изменением"
-                : `Альтернативный вариант ${index + 1}`;
-
-            const details = document.createElement("div");
-            details.className = "scenario-details";
-
-            const changes = scenario.changes || [];
-
-            changes.forEach(change => {
-                const changeLine = document.createElement("div");
-
-                if (change.feature === "duration") {
-                    changeLine.textContent =
-                        `${change.label}: ${change.old_value} → ` +
-                        `${change.new_value} месяцев`;
-                } else if (change.feature === "credit_amount") {
-                    changeLine.textContent =
-                        `${change.label}: ${change.old_value} → ` +
-                        `${change.new_value}`;
-                } else {
-                    changeLine.textContent =
-                        `${change.label}: ${change.old_value} → ` +
-                        `${change.new_value}`;
-                }
-
-                details.appendChild(changeLine);
-            });
-
-            const probability = document.createElement("div");
-            probability.className = "scenario-probability";
-
-            probability.textContent =
-                `Прогнозируемая вероятность дефолта: ` +
-                `${Number(scenario.probability_percent).toFixed(2)}%`;
-
-            item.appendChild(title);
-            item.appendChild(details);
-            item.appendChild(probability);
-
-            list.appendChild(item);
-        });
-    }
-
-    function renderResult(data) {
-        const decision = document.getElementById("decision");
-        const probability = document.getElementById("probability");
-        const progressBar = document.getElementById("progressBar");
-        const thresholdInfo = document.getElementById("thresholdInfo");
-
-        const probabilityPercent = Number(data.probability_percent);
-
-        decision.textContent = data.decision === "approve"
-            ? "Ниже порога риска"
-            : "Порог риска достигнут";
-
-        decision.className = "decision " +
-            (data.decision === "approve" ? "approve" : "decline");
-
-        probability.textContent = `${probabilityPercent.toFixed(2)}%`;
-
-        progressBar.style.width =
-            `${Math.min(100, Math.max(0, probabilityPercent))}%`;
-
-        thresholdInfo.textContent =
-            `Порог классификации: ${(data.threshold * 100).toFixed(0)}%. ` +
-            `Если вероятность дефолта ниже порога, модель относит заявку ` +
-            `к классу 0. В противном случае — к классу 1.`;
-
-        renderFactors(data.top_factors);
-
-        // Аналитическое заключение.
-        const llmExplanation = document.getElementById("llmExplanation");
-        const llmStatus = document.getElementById("llmStatus");
-
-        llmExplanation.textContent =
-            data.llm_explanation ||
-            "Аналитическое заключение не сформировано.";
-
-        if (data.llm_source === "qwen") {
-            llmStatus.textContent =
-                "Пояснение факторов сформировано Qwen 3.5 4B. " +
-                "Числовые результаты и рекомендации рассчитаны программно.";
-        } else {
-            llmStatus.textContent =
-                "Использовано резервное заключение Python. " +
-                "Языковая модель не сформировала ответ.";
-        }
-
-        // Альтернативные сценарии.
-        renderCounterfactual(data.counterfactual);
-
-        resultCard.classList.remove("hidden");
-
-        resultCard.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-    }
-
-    form.addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        errorMessage.classList.add("hidden");
-        resultCard.classList.add("hidden");
-
-        if (!form.reportValidity()) {
-            return;
-        }
-
-        const features = getFormData();
-
-        submitButton.disabled = true;
-        submitButton.textContent =
-            "Оценка кредитного риска и подготовка заключения...";
-
-        try {
-            const response = await fetch("/predict", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    features: features
-                })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok || data.status !== "success") {
-                throw new Error(
-                    data.message || "Не удалось выполнить оценку."
-                );
-            }
-
-            renderResult(data);
-
-        } catch (error) {
-            showError(error.message);
-        } finally {
-            submitButton.disabled = false;
-            submitButton.textContent = "Оценить кредитный риск";
-        }
-    });
-</script>
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 
 </body>
 </html>
