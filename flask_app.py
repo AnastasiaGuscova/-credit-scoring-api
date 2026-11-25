@@ -3,65 +3,46 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, jsonify, render_template, request
 from catboost import CatBoostClassifier
 
 from data import (
     NUMERIC_FEATURES,
     CATEGORICAL_FEATURES,
-    prepare_features
+    prepare_features,
 )
 from explain import ModelExplainer
+from counterfactual import find_counterfactual
+from llm_explainer import generate_explanation
 
-
-# ============================================================
-# КОНФИГУРАЦИЯ
-# ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent
 
 MODEL_PATH = BASE_DIR / "models" / "model.cbm"
 METADATA_PATH = BASE_DIR / "models" / "model_metadata.json"
 
-# Запасной путь для совместимости со старой структурой проекта
-FALLBACK_MODEL_PATH = BASE_DIR / "model.cbm"
-
 DEFAULT_THRESHOLD = 0.25
-
-app = Flask(__name__)
 
 RAW_FEATURES = NUMERIC_FEATURES + CATEGORICAL_FEATURES
 
+app = Flask(__name__)
 
-# ============================================================
-# ЗАГРУЗКА МОДЕЛИ И МЕТАДАННЫХ
-# ============================================================
 
 def load_model():
-    """Загружает обученную модель CatBoost."""
-
-    model_path = MODEL_PATH
-
-    if not model_path.exists():
-        model_path = FALLBACK_MODEL_PATH
-
-    if not model_path.exists():
+    if not MODEL_PATH.exists():
         raise FileNotFoundError(
-            "Файл модели не найден. "
-            "Проверь наличие models/model.cbm или model.cbm."
+            f"Файл модели не найден: {MODEL_PATH}"
         )
 
-    loaded_model = CatBoostClassifier()
-    loaded_model.load_model(str(model_path))
+    model = CatBoostClassifier()
+    model.load_model(str(MODEL_PATH))
 
-    print(f"Модель загружена: {model_path}")
+    print(f"Модель загружена: {MODEL_PATH}")
 
-    return loaded_model
+    return model
 
 
 def load_threshold():
-    """Загружает подобранный порог классификации."""
-
     if not METADATA_PATH.exists():
         print(
             "Метаданные не найдены. "
@@ -74,49 +55,21 @@ def load_threshold():
             metadata = json.load(file)
 
         threshold = float(
-            metadata.get("threshold", DEFAULT_THRESHOLD)
+            metadata.get("classification_threshold", DEFAULT_THRESHOLD)
         )
-
-        if not 0 < threshold < 1:
-            raise ValueError(
-                "Порог должен находиться между 0 и 1."
-            )
 
         print(f"Порог классификации загружен: {threshold}")
 
         return threshold
 
-    except (ValueError, TypeError, json.JSONDecodeError) as error:
-        print(
-            f"Ошибка чтения порога: {error}. "
-            f"Используется значение {DEFAULT_THRESHOLD}"
-        )
+    except Exception as error:
+        print(f"Ошибка загрузки порога: {error}")
         return DEFAULT_THRESHOLD
 
 
-# Загружаем модель один раз при запуске приложения
-model = load_model()
-
-# Передаём уже загруженную модель в SHAP-объяснитель
-explainer = ModelExplainer(model=model)
-
-CLASSIFICATION_THRESHOLD = load_threshold()
-
-
-# ============================================================
-# ПОДГОТОВКА ВХОДНЫХ ДАННЫХ
-# ============================================================
-
 def prepare_input(features):
-    """
-    Проверяет входные данные и приводит их к формату,
-    который использовался при обучении модели.
-    """
-
     if not isinstance(features, dict):
-        raise ValueError(
-            "Поле features должно содержать JSON-объект."
-        )
+        raise ValueError("Данные заявки должны быть объектом.")
 
     missing_features = [
         feature
@@ -127,55 +80,53 @@ def prepare_input(features):
     if missing_features:
         raise ValueError(
             "Не переданы обязательные признаки: "
-            f"{', '.join(missing_features)}"
+            + ", ".join(missing_features)
         )
 
-    # Оставляем только исходные признаки датасета
-    raw_data = {
-        feature: features[feature]
-        for feature in RAW_FEATURES
-    }
+    input_data = {}
 
-    raw_df = pd.DataFrame([raw_data])
+    for feature in RAW_FEATURES:
+        value = features[feature]
 
-    # Используем ту же обработку и Feature Engineering,
-    # что и при обучении модели
-    prepared_df = prepare_features(raw_df)
+        if value is None or value == "":
+            raise ValueError(
+                f"Поле '{feature}' не должно быть пустым."
+            )
 
-    return prepared_df
+        if feature in NUMERIC_FEATURES:
+            try:
+                input_data[feature] = float(value)
+            except (TypeError, ValueError):
+                raise ValueError(
+                    f"Поле '{feature}' должно быть числовым."
+                )
+        else:
+            input_data[feature] = str(value)
 
+    input_df = pd.DataFrame([input_data])
 
-# ============================================================
-# ПРЕДСКАЗАНИЕ
-# ============================================================
+    return input_df, input_data
+
 
 def get_default_probability(input_df):
-    """Получает вероятность принадлежности к классу bad (1)."""
-
-    probabilities = model.predict_proba(input_df)[0]
+    probabilities = model.predict_proba(input_df)
 
     classes = list(model.classes_)
 
     if 1 not in classes:
-        raise ValueError(
-            "В модели отсутствует класс 1 (bad / дефолт)."
-        )
+        raise ValueError("В модели отсутствует класс 1.")
 
     default_index = classes.index(1)
 
-    return float(probabilities[default_index])
+    return float(probabilities[0][default_index])
 
-
-# ============================================================
-# ПРЕОБРАЗОВАНИЕ ДАННЫХ ДЛЯ JSON
-# ============================================================
 
 def convert_to_json_safe(value):
-    """Преобразует numpy-типы в обычные Python-типы для JSON."""
+    """Рекурсивно преобразует numpy-типы в обычные Python-типы."""
 
     if isinstance(value, dict):
         return {
-            key: convert_to_json_safe(item)
+            str(key): convert_to_json_safe(item)
             for key, item in value.items()
         }
 
@@ -191,95 +142,104 @@ def convert_to_json_safe(value):
     return value
 
 
-# ============================================================
-# МАРШРУТЫ FLASK
-# ============================================================
+# Загружаем модель один раз при запуске Flask.
+model = load_model()
 
-@app.route("/")
+CLASSIFICATION_THRESHOLD = load_threshold()
+
+explainer = ModelExplainer(model)
+
+
+@app.route("/", methods=["GET"])
 def index():
-    """Главная страница приложения."""
-
     return render_template("index.html")
 
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    """Обрабатывает заявку и возвращает результат скоринга."""
-
     try:
-        # 1. Проверяем формат запроса
-        data = request.get_json(silent=True)
+        request_data = request.get_json(silent=True) or {}
 
-        if not isinstance(data, dict):
-            return jsonify({
-                "status": "error",
-                "message": "Некорректный JSON-запрос."
-            }), 400
+        features = request_data.get("features")
 
-        features = data.get("features")
+        input_df, raw_features = prepare_input(features)
 
-        if features is None:
-            return jsonify({
-                "status": "error",
-                "message": "В запросе отсутствует поле features."
-            }), 400
+        # 1. Подготовка признаков для CatBoost.
+        prepared_df = prepare_features(input_df)
 
-        # 2. Подготавливаем признаки
-        input_df = prepare_input(features)
+        # 2. Расчёт вероятности дефолта.
+        probability = get_default_probability(prepared_df)
 
-        # 3. Рассчитываем вероятность дефолта
-        probability = get_default_probability(input_df)
-
-        # 4. Принимаем решение по подобранному порогу
+        # 3. Решение модели.
         decision = (
             "approve"
             if probability < CLASSIFICATION_THRESHOLD
             else "decline"
         )
 
-        # 5. Получаем SHAP-объяснение
-        # В explain.py существует метод explain(), а не get_top_factors()
+        # 4. SHAP-факторы.
         top_factors = explainer.explain(
-            input_df,
+            prepared_df,
             top_n=5
         )
 
-        # 6. Формируем ответ
+        top_factors = convert_to_json_safe(top_factors)
+
+        # 5. Контрфактический поиск.
+        counterfactual = None
+
+        if decision == "decline":
+            counterfactual = find_counterfactual(
+                original_features=raw_features,
+                model=model,
+                threshold=CLASSIFICATION_THRESHOLD,
+                max_alternatives=3,
+            )
+
+        # 6. Понятное заключение.
+        explanation = generate_explanation(
+            probability=probability,
+            threshold=CLASSIFICATION_THRESHOLD,
+            decision=decision,
+            factors=top_factors,
+            counterfactual=counterfactual,
+        )
+
         response = {
             "status": "success",
             "decision": decision,
             "probability": round(probability, 4),
             "probability_percent": round(probability * 100, 2),
             "threshold": CLASSIFICATION_THRESHOLD,
-            "top_factors": convert_to_json_safe(top_factors)
+            "top_factors": top_factors,
+            "counterfactual": counterfactual,
+            "llm_explanation": explanation["text"],
+            "llm_source": explanation["source"],
         }
 
-        return jsonify(response), 200
+        return jsonify(convert_to_json_safe(response))
 
     except ValueError as error:
         return jsonify({
             "status": "error",
-            "message": str(error)
+            "message": str(error),
         }), 400
 
-    except Exception:
-        app.logger.exception(
-            "Ошибка при обработке заявки"
-        )
+    except Exception as error:
+        print(f"Ошибка при обработке заявки: {error}")
 
         return jsonify({
             "status": "error",
-            "message": "Не удалось обработать заявку."
+            "message": (
+                "Произошла ошибка при оценке заявки. "
+                "Проверьте данные и повторите попытку."
+            ),
         }), 500
 
-
-# ============================================================
-# ЗАПУСК ПРИЛОЖЕНИЯ
-# ============================================================
 
 if __name__ == "__main__":
     app.run(
         host="127.0.0.1",
         port=5000,
-        debug=False
+        debug=False,
     )
